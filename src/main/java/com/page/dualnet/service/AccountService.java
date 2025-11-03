@@ -85,13 +85,53 @@ public class AccountService {
         return pw.equals(password == null ? "" : password);
     }
 
+    // Update an existing account identified by username. Returns true if updated, false if not found.
+    public synchronized boolean updateAccount(String username, Account updated) {
+        if (username == null) return false;
+        List<Account> all = readAll();
+        boolean found = false;
+        for (int i = 0; i < all.size(); i++) {
+            Account a = all.get(i);
+            if (username.equalsIgnoreCase(a.getUsername())) {
+                // preserve original username and email unless updated explicitly
+                String uname = a.getUsername();
+                String email = a.getEmail();
+                String pw = a.getPassword();
+                // replace fields from updated if provided (non-null)
+                if (updated.getUsername() != null && !updated.getUsername().isBlank()) uname = updated.getUsername();
+                if (updated.getEmail() != null && !updated.getEmail().isBlank()) email = updated.getEmail();
+                if (updated.getPassword() != null) pw = updated.getPassword();
+                String display = updated.getDisplayName() == null ? a.getDisplayName() : updated.getDisplayName();
+                String bio = updated.getBio() == null ? a.getBio() : updated.getBio();
+                Account newAcc = new Account(uname, email, pw, display, bio);
+                all.set(i, newAcc);
+                found = true;
+                break;
+            }
+        }
+        if (!found) return false;
+        // write all back to file atomically
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (Account ac : all) {
+                sb.append(ac.toString()).append(System.lineSeparator());
+            }
+            Files.writeString(dataFile, sb.toString(), StandardOpenOption.TRUNCATE_EXISTING);
+            return true;
+        } catch (IOException e) {
+            throw new RuntimeException("Unable to write accounts file", e);
+        }
+    }
+
     // helpers to parse the CSV-like escaped format used by Account#toString
     private Account parseLine(String line) {
         List<String> parts = splitEscaped(line);
         String u = parts.size() > 0 ? unescape(parts.get(0)) : "";
         String e = parts.size() > 1 ? unescape(parts.get(1)) : "";
         String p = parts.size() > 2 ? unescape(parts.get(2)) : "";
-        return new Account(u, e, p);
+        String d = parts.size() > 3 ? unescape(parts.get(3)) : "";
+        String b = parts.size() > 4 ? unescape(parts.get(4)) : "";
+        return new Account(u, e, p, d, b);
     }
 
     private List<String> splitEscaped(String s) {

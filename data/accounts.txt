@@ -1,3 +1,3 @@
-max,max@gmail.com,max
-johannes,johannes@gmaail.com,johannes
-lucas,lucas@gmail.com,lucas
+max,max@gmail.com,max,Maximus,Ich bin krass unterwegs
+johannes,johannes@gmaail.com,johannes,Johannnnnnnnnnnnnes,Ich kann Daten Banken 
+lucas,lucas@gmail.com,lucas,,

@@ -34,6 +34,169 @@
     return r.json();
   }
 
+  // --- new: user search UI + logic ---
+  // we'll inject a small search box above the chat input area that queries /api/profiles?q=...
+  function debounce(fn, wait){ let t; return function(...args){ clearTimeout(t); t = setTimeout(()=>fn.apply(this,args), wait); }; }
+
+  async function searchUsers(query){
+    if (!query || !query.trim()) return [];
+    try{
+      const url = '/api/profiles?q=' + encodeURIComponent(query.trim());
+      const r = await fetch(url, { credentials: 'same-origin' });
+      if (!r.ok) return [];
+      const j = await r.json();
+      return Array.isArray(j) ? j : [];
+    }catch(e){ return []; }
+  }
+
+  function createSearchUI(){
+    if (!chatInput) return; // can't insert
+    const controls = chatInput.parentElement; if (!controls) return;
+    // avoid creating twice
+    if (document.getElementById('user-search-container')) return;
+
+    const container = document.createElement('div');
+    container.id = 'user-search-container';
+    container.style.padding = '8px';
+    container.style.borderTop = '1px solid #eaeaea';
+    container.style.borderBottom = '1px solid #eee';
+    container.style.display = 'flex';
+    container.style.flexDirection = 'column';
+    container.style.gap = '6px';
+
+    const row = document.createElement('div');
+    row.style.display = 'flex'; row.style.gap = '8px'; row.style.alignItems = 'center';
+
+    const input = document.createElement('input');
+    input.id = 'user-search-input';
+    input.type = 'text';
+    input.placeholder = 'Benutzer suchen (Name oder E-Mail)';
+    input.style.flex = '1';
+    input.style.padding = '8px';
+    input.style.border = '1px solid #ccc';
+    input.style.borderRadius = '6px';
+
+    const hint = document.createElement('div'); hint.textContent = '→'; hint.style.color = '#888'; hint.style.fontSize = '18px'; hint.title = 'Wähle einen Benutzer aus, um einen Chat zu starten';
+
+    row.appendChild(input); row.appendChild(hint);
+
+    const results = document.createElement('div');
+    results.id = 'user-search-results';
+    results.style.maxHeight = '180px';
+    results.style.overflow = 'auto';
+
+    container.appendChild(row); container.appendChild(results);
+
+    // insert before existing chat controls
+    controls.parentElement.insertBefore(container, controls);
+
+    // state for results and selection
+    let selectedIndex = -1;
+
+    function setSelection(idx){
+      selectedIndex = idx;
+      Array.from(results.children).forEach(c => { c.style.background = ''; });
+      const el = results.querySelector('[data-idx="'+idx+'"]');
+      if (el) el.style.background = '#e8f0ff';
+    }
+
+    // event handling
+    const doSearch = debounce(async function(){
+      const q = input.value || '';
+      results.innerHTML = '';
+      selectedIndex = -1;
+      if (!q.trim()) return;
+      const list = await searchUsers(q);
+      if (!list || list.length === 0){
+        const p = document.createElement('div'); p.textContent = 'Keine Nutzer gefunden'; p.style.padding='6px'; p.style.color='#666'; results.appendChild(p); return;
+      }
+      list.forEach((u, i) => {
+        const item = document.createElement('div');
+        item.dataset.idx = String(i);
+        item.className = 'user-search-item';
+        item.style.padding = '8px'; item.style.borderBottom = '1px solid #f0f0f0'; item.style.cursor = 'pointer';
+        item.tabIndex = 0;
+        const title = document.createElement('div'); title.textContent = u.displayName && u.displayName.length ? (u.displayName + ' (' + u.username + ')') : (u.username || u.email || '');
+        title.style.fontWeight = '600';
+        const sub = document.createElement('div'); sub.textContent = u.email || ''; sub.style.fontSize='12px'; sub.style.color='#666';
+        item.appendChild(title); item.appendChild(sub);
+        item.onclick = async function(){
+          const other = u.username && u.username.length ? u.username : (u.email || '');
+          if (!other) return;
+          await startChatWith(other);
+          input.value = '';
+          results.innerHTML = '';
+          selectedIndex = -1;
+        };
+        item.onmouseenter = function(){ setSelection(i); };
+        results.appendChild(item);
+      });
+    }, 300);
+
+    input.addEventListener('input', doSearch);
+
+    // keyboard navigation: ArrowUp, ArrowDown, Enter, Escape
+    input.addEventListener('keydown', function(e){
+      const len = results.querySelectorAll('.user-search-item').length;
+      if (e.key === 'ArrowDown'){
+        e.preventDefault();
+        if (len === 0) return;
+        let ni = selectedIndex + 1;
+        if (ni >= len) ni = 0;
+        setSelection(ni);
+        const el = results.querySelector('[data-idx="'+ni+'"]'); if (el) el.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'ArrowUp'){
+        e.preventDefault();
+        if (len === 0) return;
+        let ni = selectedIndex - 1;
+        if (ni < 0) ni = len - 1;
+        setSelection(ni);
+        const el = results.querySelector('[data-idx="'+ni+'"]'); if (el) el.scrollIntoView({ block: 'nearest' });
+      } else if (e.key === 'Enter'){
+        e.preventDefault();
+        if (selectedIndex >= 0){
+          const el = results.querySelector('[data-idx="'+selectedIndex+'"]'); if (el) el.click();
+        } else {
+          const first = results.querySelector('.user-search-item'); if (first) first.click();
+        }
+      } else if (e.key === 'Escape'){
+        input.value = '';
+        results.innerHTML = '';
+        selectedIndex = -1;
+        input.blur();
+      }
+    });
+
+    // also allow clicking outside to clear results
+    document.addEventListener('click', function(ev){
+      if (!container.contains(ev.target)){
+        // keep input value but clear dropdown
+        results.innerHTML = '';
+        selectedIndex = -1;
+      }
+    });
+  }
+
+  async function startChatWith(other) {
+    if (!other) return;
+    if (!currentUser) await initUser();
+    const me = currentUser || '';
+    try{
+      const res = await fetch('/api/chats/start', { method: 'POST', headers: {'Content-Type':'application/json'}, credentials:'same-origin', body: JSON.stringify({ me, other }) });
+      if (!res.ok) { console.warn('start chat failed, status=' + res.status); return; }
+      const j = await res.json();
+      if (j && j.chatId) {
+        state.selected = j.chatId;
+        await refreshAll();
+        // show the chat window if panel is closed
+        if (!panel.classList.contains('open')) openPanel();
+        // focus message input
+        if (chatInput) chatInput.focus();
+      }
+    }catch(e){ console.warn('Could not start chat with', other, e); }
+  }
+  // --- end new search UI ---
+
   async function loadChatList(){
     try{
       const list = await fetchJson('/api/chats');
@@ -154,4 +317,7 @@
 
   // initial load (but do not open panel)
   initUser().then(()=>{ loadChatList().then(()=>renderChatList()).catch(()=>{}); }).catch(()=>{});
+
+  // create search UI after initial user fetch so we can pre-populate if needed
+  initUser().then(()=>{ createSearchUI(); }).catch(()=>{});
 })();

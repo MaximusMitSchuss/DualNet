@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>DualNet - Profile</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="stylesheet" href="/messages.css">
+  <style>
+    body{font-family:Arial,Helvetica,sans-serif;margin:20px}
+    .profile-card{max-width:800px;margin:0 auto;background:#fff;border:1px solid #e6e6e6;padding:18px;border-radius:8px}
+    .profile-header{display:flex;gap:16px;align-items:center}
+    .avatar{width:88px;height:88px;border-radius:50%;background:#ddd;display:flex;align-items:center;justify-content:center;font-size:28px;color:#666}
+    .displayName{font-size:20px;font-weight:700}
+    .username{color:#666}
+    .bio{margin-top:12px;white-space:pre-wrap}
+    .edit-btn{background:#2b7cff;color:#fff;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .save-btn{background:green;color:#fff;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .cancel-btn{background:#888;color:#fff;border:0;padding:8px 10px;border-radius:6px;cursor:pointer}
+    .field{margin-top:8px}
+    label{display:block;font-size:13px;color:#444;margin-bottom:6px}
+    input[type=text], textarea {width:100%;padding:8px;border:1px solid #ccc;border-radius:6px}
+  </style>
+</head>
+<body>
+  <div id="nav-placeholder"></div>
+  <script>
+    // inject navbar like other pages
+    (function(){
+      fetch('/navbar.html')
+        .then(r => r.ok ? r.text() : '')
+        .then(html => { const ph = document.getElementById('nav-placeholder'); if (!ph) return; const container = document.createElement('div'); container.innerHTML = html; Array.from(container.querySelectorAll('link[rel="stylesheet"]')).forEach(l => { if (!document.querySelector('link[href="' + l.getAttribute('href') + '"]')) document.head.appendChild(l); }); Array.from(container.querySelectorAll('link, script')).forEach(n => n.remove()); ph.innerHTML = container.innerHTML; fetch('/navbar.html').then(r => r.text()).then(full => { const tmp = document.createElement('div'); tmp.innerHTML = full; Array.from(tmp.querySelectorAll('script[src]')).forEach(s => { const nx = document.createElement('script'); nx.src = s.src; nx.defer = true; document.body.appendChild(nx); }); }).catch(()=>{});
+        }).catch(()=>{});
+    })();
+  </script>
+
+  <h1>Profile</h1>
+  <div class="profile-card" id="profile-card">
+    <div class="profile-header">
+      <div class="avatar" id="avatar">?</div>
+      <div style="flex:1">
+        <div class="displayName" id="displayName">---</div>
+        <div class="username" id="username">@unknown</div>
+      </div>
+      <div id="actions">
+        <button id="editBtn" class="edit-btn" style="display:none">Bearbeiten</button>
+      </div>
+    </div>
+    <div class="bio" id="bio">Keine Beschreibung</div>
+
+    <div id="editForm" style="display:none;margin-top:16px">
+      <div class="field">
+        <label for="inpDisplay">Angezeigter Name</label>
+        <input id="inpDisplay" type="text" />
+      </div>
+      <div class="field">
+        <label for="inpBio">Beschreibung</label>
+        <textarea id="inpBio" rows="6"></textarea>
+      </div>
+      <div class="field" style="display:none" id="sensitiveFields">
+        <label for="inpEmail">E-Mail</label>
+        <input id="inpEmail" type="text" />
+        <label for="inpPassword" style="margin-top:8px">Neues Passwort (leer lassen = unverändert)</label>
+        <input id="inpPassword" type="text" />
+      </div>
+      <div style="margin-top:12px;display:flex;gap:8px">
+        <button id="saveBtn" class="save-btn">Speichern</button>
+        <button id="cancelBtn" class="cancel-btn">Abbrechen</button>
+      </div>
+      <div id="msg" style="margin-top:10px;display:none"></div>
+    </div>
+  </div>
+
+  <script src="/profiles.js" defer></script>
+</body>
+</html>
