@@ -1,0 +1,12 @@
+/* Simple styles for messages panel */
+#messages-panel { transform: translateX(100%); transition: transform 0.22s ease-in-out; }
+#messages-panel.open { display:block; transform: translateX(0); }
+#chat-list .chat-item { padding:8px;border-radius:6px;cursor:pointer;margin-bottom:6px;background:#fff;border:1px solid #e6e6e6; }
+#chat-list .chat-item.active { background:#eef6ff;border-color:#cfe6ff; }
+#chat-list .chat-item .meta { font-size:12px;color:#666; }
+#chat-messages .message { margin-bottom:8px; padding:8px 10px;border-radius:10px;max-width:80%; }
+#chat-messages .message.incoming { background:#f1f1f1; align-self:flex-start; }
+#chat-messages .message.outgoing { background:#2b7cff;color:#fff; align-self:flex-end; }
+#chat-messages { display:flex;flex-direction:column;gap:6px; }
+@media (max-width:420px){ #messages-panel{ width:100%; } }
+

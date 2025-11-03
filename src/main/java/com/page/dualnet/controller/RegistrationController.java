@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class RegistrationController {
 
@@ -24,7 +26,8 @@ public class RegistrationController {
             @RequestParam String email,
             @RequestParam(required = false) String password,
             @RequestParam(required = false, name = "passwordConfirm") String passwordConfirm,
-            RedirectAttributes redirectAttributes
+            RedirectAttributes redirectAttributes,
+            HttpSession session
     ) {
         if (username == null || username.isBlank() || email == null || email.isBlank()) {
             redirectAttributes.addAttribute("error", "missing");
@@ -52,7 +55,9 @@ public class RegistrationController {
 
         Account account = new Account(username.trim(), email.trim(), p);
         accountService.save(account);
-        // on success, redirect to a welcome page
-        return "redirect:/login.html";
+        // set session username so user is considered logged in
+        session.setAttribute("username", account.getUsername());
+        // on success, redirect to homepage with a registered flag
+        return "redirect:/Homepage.html?registered=1";
     }
 }

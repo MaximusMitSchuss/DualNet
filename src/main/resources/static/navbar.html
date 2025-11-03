@@ -1,10 +1,48 @@
 <nav id="main-nav" style="background:#333;color:#fff;padding:10px 16px;font-family:Arial,Helvetica,sans-serif;">
   <a href="/Homepage.html" style="color:#fff;text-decoration:none;margin-right:16px;font-weight:bold;">DualNet</a>
   <a href="/Homepage.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Startseite</a>
-  <a href="/login.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Anmelden</a>
-  <a href="/registration.html" style="color:#ddd;text-decoration:none;">Registrieren</a>
-  <span style="float:right;color:#bbb;font-size:90%;">&nbsp;</span>
+  <a href="/profiles.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Profile</a>
+  <span id="auth-links" style="margin-right:12px;">
+    <a id="link-login" href="/login.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Anmelden</a>
+  </span>
+  <!-- pre-created logout link (hidden by default) -->
+  <a id="link-logout" href="/logout" style="display:none;color:#ddd;text-decoration:none;margin-right:12px;float:right;font-size:90%;"></a>
+  <span id="nav-right" style="float:right;color:#bbb;font-size:90%;">
+    <!-- Messages button -->
+    <button id="messages-btn" aria-label="Nachrichten" title="Nachrichten" style="background:transparent;border:0;color:#fff;cursor:pointer;padding:6px;">
+      <!-- simple chat bubble SVG -->
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
+        <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </span>
 </nav>
+
+<!-- Messages side panel -->
+<div id="messages-panel" aria-hidden="true" style="display:none; position:fixed; right:0; top:0; height:100%; width:360px; max-width:100%; background:#f7f7f8; box-shadow:-4px 0 12px rgba(0,0,0,0.15); z-index:1000; font-family:Arial,Helvetica,sans-serif;">
+  <div style="display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid #e0e0e0;">
+    <strong>Nachrichten</strong>
+    <div>
+      <button id="messages-close" aria-label="Schließen" style="background:transparent;border:0;cursor:pointer;font-size:18px;">✕</button>
+    </div>
+  </div>
+  <div id="messages-content" style="display:flex;flex-direction:column;height:calc(100% - 56px);">
+    <div id="chat-list" style="overflow:auto;padding:10px;border-right:1px solid #eee;">
+      <!-- list of chats will be injected here -->
+    </div>
+    <div id="chat-window" style="flex:1;display:flex;flex-direction:column;border-top:1px solid #eaeaea;">
+      <div id="chat-messages" style="flex:1;overflow:auto;padding:10px;background:#fff;"></div>
+      <div style="padding:8px;border-top:1px solid #ddd;display:flex;gap:8px;">
+        <input id="chat-input" type="text" placeholder="Nachricht schreiben..." style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" />
+        <button id="chat-send" style="padding:8px 10px;border-radius:4px;background:#2b7cff;color:#fff;border:0;cursor:pointer;">Senden</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<link rel="stylesheet" href="/messages.css">
+<script src="/messages.js" defer></script>
+<script src="/navbar.js" defer></script>
 
 <!--
 <div id="nav-placeholder"></div>

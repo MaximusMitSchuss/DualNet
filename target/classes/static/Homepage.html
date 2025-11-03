@@ -21,14 +21,51 @@
     (function(){
       fetch('/navbar.html')
         .then(r => r.ok ? r.text() : '')
-        .then(html => { const ph = document.getElementById('nav-placeholder'); if (ph) ph.innerHTML = html; })
+        .then(html => { const ph = document.getElementById('nav-placeholder'); if (!ph) return;
+            const container = document.createElement('div'); container.innerHTML = html;
+            // move stylesheet links to head
+            Array.from(container.querySelectorAll('link[rel="stylesheet"]')).forEach(l => {
+                if (!document.querySelector('link[href="' + l.getAttribute('href') + '"]')) document.head.appendChild(l);
+            });
+            // insert the navbar markup (without script/link tags)
+            Array.from(container.querySelectorAll('link, script')).forEach(n => n.remove());
+            ph.innerHTML = container.innerHTML;
+            // execute external scripts referenced in original html
+            fetch('/navbar.html').then(r => r.text()).then(full => {
+                const tmp = document.createElement('div'); tmp.innerHTML = full;
+                Array.from(tmp.querySelectorAll('script[src]')).forEach(s => {
+                    const nx = document.createElement('script'); nx.src = s.src; nx.defer = true; document.body.appendChild(nx);
+                });
+            }).catch(()=>{});
+        })
         .catch(() => {});
     })();
   </script>
-  <div class="container">
-    <h1>Willkommen bei DualNet</h1>
-    <p>Das ist eine ganz einfache statische Webseite. Du kannst diese Datei bearbeiten unter <code>src/main/resources/static/index.html</code>.</p>
-    <p>Die Seite wird automatisch ausgeliefert, wenn die Spring Boot App läuft — öffnee<a href="/">/</a> im Browser.</p>
-  </div>
-</body>
-</html>
+  <div id="flash" style="max-width:760px;margin:12px auto 0;display:none;padding:12px;border-radius:8px;text-align:center"></div>
+   <div class="container">
+     <h1>Willkommen bei DualNet</h1>
+     <script>
+      (function(){
+        const params = new URLSearchParams(location.search);
+        const flash = document.getElementById('flash');
+        if (!flash) return;
+        const show = (text, bg) => { flash.textContent = text; flash.style.display='block'; flash.style.background = bg; flash.style.color = '#0b2e4a'; flash.style.border = '1px solid rgba(0,0,0,0.06)'; };
+        if (params.get('registered') === '1') {
+          // try to get username
+          fetch('/api/whoami').then(r=>r.ok? r.json():{}).then(j=>{
+            const u = j && j.username ? j.username : '';
+            show(u ? ('Registrierung erfolgreich — willkommen, ' + u + '!') : 'Registrierung erfolgreich! Willkommen.','linear-gradient(180deg,#e6ffef,#f0fff5)');
+          }).catch(()=>{ show('Registrierung erfolgreich!','linear-gradient(180deg,#e6ffef,#f0fff5)'); });
+        } else if (params.get('login') === '1') {
+          fetch('/api/whoami').then(r=>r.ok? r.json():{}).then(j=>{
+            const u = j && j.username ? j.username : '';
+            show(u ? ('Erfolgreich angemeldet als ' + u + '.') : 'Erfolgreich angemeldet.','linear-gradient(180deg,#e6f0ff,#eef6ff)');
+          }).catch(()=>{ show('Erfolgreich angemeldet.','linear-gradient(180deg,#e6f0ff,#eef6ff)'); });
+        }
+      })();
+    </script>
+     <p>Das ist eine ganz einfache statische Webseite. Du kannst diese Datei bearbeiten unter <code>src/main/resources/static/index.html</code>.</p>
+     <p>Die Seite wird automatisch ausgeliefert, wenn die Spring Boot App läuft — öffnee<a href="/">/</a> im Browser.</p>
+   </div>
+ </body>
+ </html>

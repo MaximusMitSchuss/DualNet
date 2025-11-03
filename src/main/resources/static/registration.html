@@ -31,7 +31,23 @@
     (function(){
       fetch('/navbar.html')
         .then(r => r.ok ? r.text() : '')
-        .then(html => { const ph = document.getElementById('nav-placeholder'); if (ph) ph.innerHTML = html; })
+        .then(html => { const ph = document.getElementById('nav-placeholder'); if (!ph) return;
+            const container = document.createElement('div'); container.innerHTML = html;
+            // move stylesheet links to head
+            Array.from(container.querySelectorAll('link[rel="stylesheet"]')).forEach(l => {
+                if (!document.querySelector('link[href="' + l.getAttribute('href') + '"]')) document.head.appendChild(l);
+            });
+            // insert the navbar markup (without script/link tags)
+            Array.from(container.querySelectorAll('link, script')).forEach(n => n.remove());
+            ph.innerHTML = container.innerHTML;
+            // execute external scripts referenced in original html
+            fetch('/navbar.html').then(r => r.text()).then(full => {
+                const tmp = document.createElement('div'); tmp.innerHTML = full;
+                Array.from(tmp.querySelectorAll('script[src]')).forEach(s => {
+                    const nx = document.createElement('script'); nx.src = s.src; nx.defer = true; document.body.appendChild(nx);
+                });
+            }).catch(()=>{});
+        })
         .catch(() => {});
     })();
   </script>
