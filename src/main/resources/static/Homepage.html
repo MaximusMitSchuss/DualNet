@@ -3,16 +3,116 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>DualNet</title>
-  <!-- Favicons: prefer PNG, provide SVG, add Apple touch icon and Safari pinned-tab mask -->
+  <title>DualNet - Home</title>
   <link rel="icon" type="image/png" sizes="32x32" href="/Icons/favicon.png">
   <link rel="shortcut icon" href="/Icons/favicon.png" type="image/png">
   <meta name="theme-color" content="#0b62d6">
   <style>
-    body{font-family:system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;margin:0;padding:40px;background:#f7f9fc;color:#222}
-    .container{max-width:760px;margin:0 auto;background:white;padding:24px;border-radius:8px;box-shadow:0 6px 20px rgba(2,6,23,0.06)}
-    h1{color:#0b62d6;margin-top:0}
-    p{line-height:1.5}
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: #f0f2f5;
+      color: #1c1e21;
+    }
+    .main-container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px;
+    }
+    .feed-header {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+    }
+    .feed-header h1 {
+      font-size: 24px;
+      color: #050505;
+      font-weight: 700;
+    }
+    .post-card {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+    .post-header {
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .post-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 18px;
+      flex-shrink: 0;
+    }
+    .post-author-info {
+      flex: 1;
+    }
+    .post-author-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #050505;
+    }
+    .post-timestamp {
+      font-size: 13px;
+      color: #65676b;
+    }
+    .post-content {
+      padding: 0 16px 16px;
+      font-size: 15px;
+      line-height: 1.5;
+      color: #050505;
+    }
+    .post-actions {
+      border-top: 1px solid #e4e6eb;
+      padding: 8px 16px;
+      display: flex;
+      gap: 8px;
+    }
+    .post-action-btn {
+      flex: 1;
+      padding: 8px;
+      background: none;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 15px;
+      color: #65676b;
+      font-weight: 600;
+      transition: background 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+    }
+    .post-action-btn:hover {
+      background: #f0f2f5;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #65676b;
+    }
+    .empty-state p {
+      margin-top: 12px;
+      font-size: 15px;
+    }
   </style>
 </head>
 <body>
@@ -25,10 +125,40 @@
         .catch(() => {});
     })();
   </script>
-  <div class="container">
-    <h1>Willkommen bei DualNet</h1>
-    <p>Das ist eine ganz einfache statische Webseite. Du kannst diese Datei bearbeiten unter <code>src/main/resources/static/index.html</code>.</p>
-    <p>Die Seite wird automatisch ausgeliefert, wenn die Spring Boot App läuft — öffnee<a href="/">/</a> im Browser.</p>
+  
+  <div class="main-container">
+    <div class="feed-header">
+      <h1>Home</h1>
+    </div>
+
+    <!-- Demo Post -->
+    <article class="post-card">
+      <div class="post-header">
+        <div class="post-avatar">D</div>
+        <div class="post-author-info">
+          <div class="post-author-name">DualNet User</div>
+          <div class="post-timestamp">Gerade eben</div>
+        </div>
+      </div>
+      <div class="post-content">
+        Test test
+      </div>
+      <div class="post-actions">
+        <button class="post-action-btn">
+          <span>👍</span>
+          <span>Gefällt mir</span>
+        </button>
+        <button class="post-action-btn">
+          <span>💬</span>
+          <span>Kommentieren</span>
+        </button>
+        <button class="post-action-btn">
+          <span>↗️</span>
+          <span>Teilen</span>
+        </button>
+      </div>
+    </article>
+
   </div>
 </body>
 </html>
