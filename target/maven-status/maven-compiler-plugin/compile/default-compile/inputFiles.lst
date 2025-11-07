@@ -1,0 +1,11 @@
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/DemoDualNetApplication.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/config/SQLiteDialect.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/controller/MainController.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/model/Account.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/model/Comment.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/model/Post.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/repository/AccountRepository.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/repository/PostRepository.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/service/AccountService.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/service/AuthService.java
+/Users/max/IdeaProjects/demoDualNet/src/main/java/com/page/demodualnet/service/PostService.java

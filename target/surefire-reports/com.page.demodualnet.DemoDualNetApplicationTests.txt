@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.page.demodualnet.DemoDualNetApplicationTests
+-------------------------------------------------------------------------------
+Tests run: 1, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 1.846 s -- in com.page.demodualnet.DemoDualNetApplicationTests
