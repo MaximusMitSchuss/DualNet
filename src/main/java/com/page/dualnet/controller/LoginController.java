@@ -41,6 +41,7 @@ public class LoginController {
             return "redirect:/login.html";
         }
 
+        // TODO: Validate credentials against hashed passwords stored in the DB and enforce rate-limiting.
         boolean ok = accountService.validateCredentials(key, password);
         if (!ok) {
             redirectAttributes.addAttribute("error", "invalid");

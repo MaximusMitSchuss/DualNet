@@ -20,10 +20,12 @@ import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
+    // TODO: Replace file-based chat storage with a database table(s) for messages and chat metadata.
     private final Path dataDir = Paths.get("data", "chats");
     private final ObjectMapper mapper = new ObjectMapper();
 
     public ChatService() {
+        // TODO: Initialize DB-related resources (connection, migrations) here instead of directory creation.
         try {
             if (!Files.exists(dataDir)) Files.createDirectories(dataDir);
         } catch (IOException e) {
@@ -46,10 +48,12 @@ public class ChatService {
     }
 
     private Path chatFile(String chatId) {
+        // TODO: When using DB, this method will no longer be needed; replace with DB lookup for chat/messages.
         return dataDir.resolve(chatId + ".txt");
     }
 
     public synchronized void appendMessage(String chatId, Message msg) {
+        // TODO: Persist message to the database (messages table) instead of appending JSON lines to a file.
         Path file = chatFile(chatId);
         try {
             if (!Files.exists(file)) Files.createFile(file);
@@ -63,6 +67,7 @@ public class ChatService {
     }
 
     public synchronized List<Message> readMessages(String chatId) {
+        // TODO: Read messages for chatId from the database (ORDER BY ts) instead of reading the file.
         Path file = chatFile(chatId);
         List<Message> out = new ArrayList<>();
         if (!Files.exists(file)) return out;
@@ -86,6 +91,7 @@ public class ChatService {
 
     // list available chats (returns map with chatId and participants and message count)
     public synchronized List<Map<String, Object>> listChats() {
+        // TODO: Implement listing chats from DB (chat metadata and message counts) instead of scanning files.
         List<Map<String, Object>> out = new ArrayList<>();
         try {
             if (!Files.exists(dataDir)) return out;
@@ -112,4 +118,3 @@ public class ChatService {
         return out;
     }
 }
-
