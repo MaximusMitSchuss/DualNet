@@ -27,6 +27,7 @@ public class ProfileController {
     @GetMapping("/profile/{username}")
     @ResponseBody
     public ResponseEntity<?> getProfilePublic(@PathVariable String username) {
+        // TODO: Replace AccountService.findByUsernameOrEmail with DB-backed query (select fields) and consider caching.
         Optional<Account> oa = accountService.findByUsernameOrEmail(username);
         if (oa.isEmpty()) return ResponseEntity.notFound().build();
         Account a = oa.get();
@@ -44,6 +45,7 @@ public class ProfileController {
         Object u = session.getAttribute("username");
         if (u == null) return ResponseEntity.ok(new HashMap<>());
         String username = String.valueOf(u);
+        // TODO: Use a DB lookup here; avoid exposing password and only return allowed fields.
         Optional<Account> oa = accountService.findByUsernameOrEmail(username);
         if (oa.isEmpty()) return ResponseEntity.ok(new HashMap<>());
         Account a = oa.get();
@@ -62,6 +64,7 @@ public class ProfileController {
         Object u = session.getAttribute("username");
         if (u == null) return ResponseEntity.status(403).body("not_logged_in");
         String username = String.valueOf(u);
+        // TODO: Use DB transaction for updates and validate uniqueness of email when changing it.
         Optional<Account> oa = accountService.findByUsernameOrEmail(username);
         if (oa.isEmpty()) return ResponseEntity.status(404).body("not_found");
         Account current = oa.get();
@@ -81,4 +84,3 @@ public class ProfileController {
         return ResponseEntity.ok().build();
     }
 }
-

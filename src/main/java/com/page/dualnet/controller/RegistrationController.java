@@ -48,12 +48,14 @@ public class RegistrationController {
         }
 
         // check if account with same username or email already exists
+        // TODO: Use database uniqueness checks / transaction to avoid race conditions.
         if (accountService.existsByUsernameOrEmail(username.trim(), email.trim())) {
             redirectAttributes.addAttribute("error", "exists");
             return "redirect:/registration.html";
         }
 
         Account account = new Account(username.trim(), email.trim(), p);
+        // TODO: Persist account via DB and hash the password before saving.
         accountService.save(account);
         // set session username so user is considered logged in
         session.setAttribute("username", account.getUsername());

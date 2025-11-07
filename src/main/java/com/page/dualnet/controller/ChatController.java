@@ -26,6 +26,7 @@ public class ChatController {
     // Search profiles by username or email (partial, case-insensitive)
     @GetMapping("/profiles")
     public List<Map<String, String>> searchProfiles(@RequestParam(required = false, name = "q") String q) {
+        // TODO: Replace readAll()-based search with a DB-backed search (e.g. SQL LIKE or full-text index).
         return accountService.readAll().stream()
                 .filter(a -> {
                     if (q == null || q.isBlank()) return true;
@@ -54,6 +55,7 @@ public class ChatController {
 
     @GetMapping("/chats")
     public List<Map<String,Object>> listChats(HttpSession session) {
+        // TODO: Switch to DB queries to list chats and resolve participant display names more efficiently.
         List<Map<String,Object>> raw = chatService.listChats();
         // build map to resolve sanitized tokens to original display names (username or email)
         Map<String, String> tokenToDisplay = new HashMap<>();
@@ -110,6 +112,7 @@ public class ChatController {
             return ResponseEntity.badRequest().body("Message text is required");
         }
         if (message.getTs() == 0) message.setTs(System.currentTimeMillis());
+        // TODO: When writing messages to DB, ensure message persistence and optional acknowledgement before returning 200.
         chatService.appendMessage(chatId, message);
         return ResponseEntity.ok().build();
     }

@@ -14,9 +14,11 @@ import java.util.Optional;
 
 @Service
 public class AccountService {
+    // TODO: Replace file-based storage with a database-backed repository (e.g. Spring Data JPA).
     private final Path dataFile = Paths.get("data", "accounts.txt");
 
     public AccountService() {
+        // TODO: Move initialization of persistence (DB connections, migrations) here instead of file creation.
         try {
             Path dir = dataFile.getParent();
             if (dir != null && !Files.exists(dir)) {
@@ -31,6 +33,7 @@ public class AccountService {
     }
 
     public synchronized void save(Account account) {
+        // TODO: Persist account to the database instead of appending to a file.
         String line = account.toString() + System.lineSeparator();
         try {
             Files.write(dataFile, line.getBytes(), StandardOpenOption.APPEND);
@@ -41,6 +44,7 @@ public class AccountService {
 
     // Read all accounts from the file
     public synchronized List<Account> readAll() {
+        // TODO: Query all accounts from the database instead of reading the file.
         List<Account> out = new ArrayList<>();
         try {
             List<String> lines = Files.readAllLines(dataFile);
@@ -57,6 +61,7 @@ public class AccountService {
     }
 
     public synchronized boolean existsByUsernameOrEmail(String username, String email) {
+        // TODO: Implement efficient database checks (unique index on username/email) instead of scanning readAll().
         if (username != null) username = username.trim();
         if (email != null) email = email.trim();
         for (Account a : readAll()) {
@@ -67,6 +72,7 @@ public class AccountService {
     }
 
     public synchronized Optional<Account> findByUsernameOrEmail(String usernameOrEmail) {
+        // TODO: Replace with a DB query (SELECT ... WHERE username = ? OR email = ?), return Optional.empty() when not found.
         if (usernameOrEmail == null) return Optional.empty();
         String key = usernameOrEmail.trim();
         for (Account a : readAll()) {
@@ -78,6 +84,7 @@ public class AccountService {
     }
 
     public synchronized boolean validateCredentials(String usernameOrEmail, String password) {
+        // TODO: Validate credentials against hashed passwords stored in the database (not plain text comparison).
         Optional<Account> oa = findByUsernameOrEmail(usernameOrEmail);
         if (oa.isEmpty()) return false;
         Account a = oa.get();
@@ -87,6 +94,7 @@ public class AccountService {
 
     // Update an existing account identified by username. Returns true if updated, false if not found.
     public synchronized boolean updateAccount(String username, Account updated) {
+        // TODO: Implement update via database transaction (UPDATE ... WHERE username = ?), return success flag appropriately.
         if (username == null) return false;
         List<Account> all = readAll();
         boolean found = false;
