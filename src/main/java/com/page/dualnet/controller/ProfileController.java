@@ -1,6 +1,6 @@
 package com.page.dualnet.controller;
 
-import com.page.dualnet.model.Account;
+import com.page.dualnet.modeltxt.Account;
 import com.page.dualnet.service.AccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

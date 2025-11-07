@@ -1,4 +1,4 @@
-package com.page.dualnet.model;
+package com.page.dualnet.modeltxt;
 
 public class Message {
     private String sender;

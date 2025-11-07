@@ -1,6 +1,6 @@
 package com.page.dualnet.service;
 
-import com.page.dualnet.model.Account;
+import com.page.dualnet.modeltxt.Account;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;

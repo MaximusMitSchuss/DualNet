@@ -1,7 +1,7 @@
 package com.page.dualnet.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.page.dualnet.model.Message;
+import com.page.dualnet.modeltxt.Message;
 import org.springframework.stereotype.Service;
 
 import java.io.BufferedWriter;

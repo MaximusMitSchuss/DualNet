@@ -1,6 +1,6 @@
 package com.page.dualnet.controller;
 
-import com.page.dualnet.model.Message;
+import com.page.dualnet.modeltxt.Message;
 import com.page.dualnet.service.AccountService;
 import com.page.dualnet.service.ChatService;
 import jakarta.servlet.http.HttpSession;
