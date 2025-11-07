@@ -9,3 +9,11 @@
 #chat-messages .message.outgoing { background:#2b7cff;color:#fff; align-self:flex-end; }
 #chat-messages { display:flex;flex-direction:column;gap:6px; }
 @media (max-width:420px){ #messages-panel{ width:100%; } }
+
+/* Modal and toast styles for new post UI */
+.new-post-modal-overlay { display:none; }
+.new-post-modal-overlay[aria-hidden="false"] { display:flex; align-items:center; justify-content:center; }
+.new-post-modal { box-sizing:border-box; background:#fff; border-radius:10px; padding:18px; width:880px; max-width:92%; }
+.new-post-modal h2 { margin:0 0 8px 0; }
+.new-post-modal input, .new-post-modal textarea { width:100%; box-sizing:border-box; }
+#new-post-feedback { transition: opacity 0.28s ease; }

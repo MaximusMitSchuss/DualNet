@@ -30,7 +30,7 @@
             // insert the navbar markup (without script/link tags)
             Array.from(container.querySelectorAll('link, script')).forEach(n => n.remove());
             ph.innerHTML = container.innerHTML;
-            // execute external scripts referenced in original html
+            // also append external scripts referenced in the original navbar.html
             fetch('/navbar.html').then(r => r.text()).then(full => {
                 const tmp = document.createElement('div'); tmp.innerHTML = full;
                 Array.from(tmp.querySelectorAll('script[src]')).forEach(s => {

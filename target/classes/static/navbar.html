@@ -1,17 +1,25 @@
-<nav id="main-nav" style="background:#333;color:#fff;padding:10px 16px;font-family:Arial,Helvetica,sans-serif;">
+<nav id="main-nav" style="background:#333;color:#fff;padding:10px 16px;font-family:Arial,Helvetica,sans-serif;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:nowrap;">
   <a href="/Homepage.html" style="color:#fff;text-decoration:none;margin-right:16px;font-weight:bold;">DualNet</a>
-  <a href="/Homepage.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Startseite</a>
-  <a href="/profiles.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Profile</a>
-  <span id="auth-links" style="margin-right:12px;">
-    <a id="link-login" href="/login.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Anmelden</a>
-  </span>
+  <div style="display:flex;align-items:center;gap:12px;flex:1;min-width:0;">
+    <a href="/Homepage.html" style="color:#ddd;text-decoration:none;">Startseite</a>
+    <a href="/profiles.html" style="color:#ddd;text-decoration:none;">Profile</a>
+    <span id="auth-links" style="margin-left:8px;display:flex;align-items:center;gap:8px;min-width:0;">
+      <a id="link-login" href="/login.html" style="color:#ddd;text-decoration:none;margin-right:12px;">Anmelden</a>
+    </span>
+  </div>
   <!-- pre-created logout link (hidden by default) -->
-  <a id="link-logout" href="/logout" style="display:none;color:#ddd;text-decoration:none;margin-right:12px;float:right;font-size:90%;"></a>
-  <span id="nav-right" style="float:right;color:#bbb;font-size:90%;">
+  <a id="link-logout" href="/logout" style="display:none;color:#ddd;text-decoration:none;margin-right:12px;font-size:90%;"></a>
+  <span id="nav-right" style="color:#bbb;font-size:90%;display:flex;align-items:center;gap:6px;flex:0 0 auto;margin-left:auto;">
+    <!-- New post (+) button -->
+    <button id="new-post-btn" type="button" aria-label="Neuen Beitrag erstellen" title="Beitrag erstellen" style="background:transparent;border:0;color:#fff;cursor:pointer;padding:6px;margin-right:6px;" onclick="document.body.dataset.dnOpenRequested='1'; try{ document.dispatchEvent(new CustomEvent('dn-open-new-post')); }catch(_){ }">
+      <svg width="20" height="20" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
     <!-- Messages button -->
     <button id="messages-btn" aria-label="Nachrichten" title="Nachrichten" style="background:transparent;border:0;color:#fff;cursor:pointer;padding:6px;">
       <!-- simple chat bubble SVG -->
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="vertical-align:middle;">
+      <svg width="20" height="20" viewBox="0 0 24 24">
         <path d="M21 15a2 2 0 0 1-2 2H8l-5 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v10z" stroke="#fff" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
     </button>
@@ -33,10 +41,30 @@
     <div id="chat-window" style="flex:1;display:flex;flex-direction:column;border-top:1px solid #eaeaea;">
       <div id="chat-messages" style="flex:1;overflow:auto;padding:10px;background:#fff;"></div>
       <div style="padding:8px;border-top:1px solid #ddd;display:flex;gap:8px;">
-        <input id="chat-input" type="text" placeholder="Nachricht schreiben..." style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" />
+        <input id="chat-input" aria-label="Nachricht eingeben" type="text" placeholder="Nachricht schreiben..." style="flex:1;padding:8px;border:1px solid #ccc;border-radius:4px;" />
         <button id="chat-send" style="padding:8px 10px;border-radius:4px;background:#2b7cff;color:#fff;border:0;cursor:pointer;">Senden</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- New Post Modal (UI only) -->
+<div id="new-post-modal" class="new-post-modal-overlay" aria-hidden="true" style="display:none;">
+  <div class="new-post-modal" role="dialog" aria-modal="true" aria-labelledby="new-post-title" style="max-width:880px;width:92%;background:#fff;border-radius:8px;padding:20px;box-shadow:0 8px 28px rgba(0,0,0,0.32);">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+      <h2 id="new-post-title" style="margin:0;font-size:20px;">Neuen Beitrag erstellen</h2>
+      <button id="new-post-close" aria-label="Schließen" style="background:transparent;border:0;font-size:20px;cursor:pointer;">✕</button>
+    </div>
+    <form id="new-post-form">
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <input id="post-title" aria-label="Beitrag Titel" name="title" placeholder="Titel (optional)" style="padding:10px;border:1px solid #ddd;border-radius:6px;font-size:16px;" />
+        <textarea id="post-content" aria-label="Beitrag Inhalt" name="content" placeholder="Was möchtest du teilen?" rows="8" style="padding:10px;border:1px solid #ddd;border-radius:6px;font-size:15px;resize:vertical;"></textarea>
+        <div style="display:flex;justify-content:flex-end;gap:8px;">
+          <button type="button" id="new-post-cancel" style="padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:transparent;cursor:pointer;">Abbrechen</button>
+          <button type="submit" id="new-post-submit" style="padding:8px 12px;border-radius:6px;background:#2b7cff;color:#fff;border:0;cursor:pointer;">Beitrag hinzufügen</button>
+        </div>
+      </div>
+    </form>
   </div>
 </div>
 
