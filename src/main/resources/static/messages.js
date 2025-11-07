@@ -296,25 +296,29 @@
   function openPanel(){ panel.classList.add('open'); panel.style.display='block'; panel.setAttribute('aria-hidden','false'); refreshAll(); }
   function closePanel(){ panel.classList.remove('open'); panel.setAttribute('aria-hidden','true'); setTimeout(()=>{ if (!panel.classList.contains('open')) panel.style.display='none'; }, 260); }
 
-  btn.addEventListener('click', ()=>{ if (panel.classList.contains('open')) closePanel(); else openPanel(); });
-  closeBtn.addEventListener('click', closePanel);
-  document.addEventListener('keydown', (e)=>{ if (e.key==='Escape' && panel.classList.contains('open')) closePanel(); });
+  if (btn) btn.addEventListener('click', ()=>{ try{ if (panel && panel.classList.contains('open')) closePanel(); else openPanel(); }catch(_){ } });
+  if (closeBtn) closeBtn.addEventListener('click', ()=>{ try{ closePanel(); }catch(_){ } });
+  document.addEventListener('keydown', (e)=>{ try{ if (e.key==='Escape' && panel && panel.classList.contains('open')) closePanel(); }catch(_){ } });
 
   async function sendCurrentMessage(){
-    const txt = chatInput.value && chatInput.value.trim(); if (!txt) return;
+    const txt = chatInput && chatInput.value && chatInput.value.trim(); if (!txt) return;
     if (!state.selected){ alert('Bitte zuerst eine Unterhaltung auswählen.'); return; }
     const sender = currentUser || 'anonymous';
     const msg = { sender: sender, text: txt, ts: Date.now() };
     // optimistic UI
-    const div = document.createElement('div'); div.className='message outgoing'; div.textContent = msg.text; chatMessagesEl.appendChild(div); chatInput.value=''; chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    try{
+      if (chatMessagesEl){ const div = document.createElement('div'); div.className='message outgoing'; div.textContent = msg.text; chatMessagesEl.appendChild(div); }
+      if (chatInput) chatInput.value='';
+      if (chatMessagesEl) chatMessagesEl.scrollTop = chatMessagesEl.scrollHeight;
+    }catch(_){ }
     // send to server
     await postMessageToServer(state.selected, msg);
     // refresh messages and list
     await refreshAll();
   }
 
-  chatSend.addEventListener('click', ()=>{ sendCurrentMessage(); });
-  chatInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter') { e.preventDefault(); sendCurrentMessage(); } });
+  if (chatSend) chatSend.addEventListener('click', ()=>{ try{ sendCurrentMessage(); }catch(_){ } });
+  if (chatInput) chatInput.addEventListener('keydown', (e)=>{ if (e.key==='Enter') { e.preventDefault(); try{ sendCurrentMessage(); }catch(_){ } } });
 
   // expose an API to open a chat from other pages (will call openPanel when initialized)
   window.DualNetChat = window.DualNetChat || {};

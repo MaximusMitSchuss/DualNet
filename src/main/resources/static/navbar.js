@@ -9,6 +9,53 @@
     }catch(e){ return ''; }
   }
 
+  // Public click handlers: ensure user is logged in before acting
+  window.DualNetHandleNewPostClick = window.DualNetHandleNewPostClick || (async function(el){
+    try{
+      console.debug('[DualNet] NewPostClick invoked', { el });
+       // Fast-path: check local dataset set by showLoggedIn/showLoggedOut
+       const ds = document.body && document.body.dataset && document.body.dataset.dnLogged;
+       const loggedUserEl = document.getElementById('logged-user');
+       const linkLogin = document.getElementById('link-login');
+       const linkIsLogout = linkLogin && linkLogin.getAttribute('href') === '/logout';
+       if (ds === '1' || loggedUserEl || linkIsLogout) { /* logged in */ }
+       else {
+         // fallback to server check
+         try{
+           const u = await whoami();
+           console.debug('[DualNet] whoami result for newpost', u);
+           if (!u) { window.location = '/login.html'; return; }
+         }catch(_){ window.location = '/login.html'; return; }
+       }
+     }catch(_){ window.location = '/login.html'; return; }
+     try{ if (typeof window.DualNetOpenNewPost === 'function') return window.DualNetOpenNewPost(); }catch(_){ }
+     try{ const m = document.getElementById('new-post-modal'); if (m) { m.style.display='flex'; m.style.alignItems='center'; m.style.justifyContent='center'; m.setAttribute('aria-hidden','false'); m.style.position='fixed'; m.style.left='0'; m.style.top='0'; m.style.width='100%'; m.style.height='100%'; m.style.background='rgba(0,0,0,0.45)'; m.style.zIndex='1100'; const inpt = m.querySelector('#post-content') || m.querySelector('#post-title'); if (inpt) setTimeout(()=>inpt.focus(),40); } }catch(_){ }
+   });
+
+  window.DualNetHandleMessagesClick = window.DualNetHandleMessagesClick || (async function(el){
+    try{
+      console.debug('[DualNet] MessagesClick invoked', { el });
+       const ds = document.body && document.body.dataset && document.body.dataset.dnLogged;
+       const loggedUserEl = document.getElementById('logged-user');
+       const linkLogin = document.getElementById('link-login');
+       const linkIsLogout = linkLogin && linkLogin.getAttribute('href') === '/logout';
+       if (ds === '1' || loggedUserEl || linkIsLogout) { /* logged in */ }
+       else {
+         try{
+           const u = await whoami();
+           console.debug('[DualNet] whoami result for messages', u);
+           if (!u) { window.location = '/login.html'; return; }
+         }catch(_){ window.location = '/login.html'; return; }
+       }
+     }catch(_){ window.location = '/login.html'; return; }
+     try{ // try to use messages panel DOM toggle
+       const p = document.getElementById('messages-panel');
+       if (!p) return;
+       if (p.classList.contains('open')){ p.classList.remove('open'); p.setAttribute('aria-hidden','true'); setTimeout(()=>{ p.style.display='none'; }, 0); }
+       else { p.classList.add('open'); p.setAttribute('aria-hidden','false'); p.style.display='block'; }
+     }catch(_){ }
+   });
+
   function ensureMessagesButton() {
     const navRight = document.getElementById('nav-right');
     if (!navRight) return;
@@ -26,6 +73,14 @@
         navRight.appendChild(btn);
       }
     }
+    console.debug('[DualNet] ensureMessagesButton attached btn', { btnExists: !!btn });
+     // ensure the programmatic button will call our login-aware handler
+     try{
+       if (btn && !btn.dataset.dnHandlerAttached){
+         btn.addEventListener('click', function(){ try{ window.DualNetHandleMessagesClick && window.DualNetHandleMessagesClick(btn); }catch(_){ } });
+         btn.dataset.dnHandlerAttached = '1';
+       }
+     }catch(_){ }
 
     // ensure plus button exists
     let postBtn = document.getElementById('new-post-btn');
@@ -38,6 +93,31 @@
       postBtn.innerHTML = '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 5v14M5 12h14" stroke="#fff" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>';
       navRight.insertBefore(postBtn, navRight.firstChild);
     }
+    try{
+      if (postBtn && !postBtn.dataset.dnHandlerAttached){
+        postBtn.addEventListener('click', function(){ try{ window.DualNetHandleNewPostClick && window.DualNetHandleNewPostClick(postBtn); }catch(_){ } });
+        postBtn.dataset.dnHandlerAttached = '1';
+      }
+    }catch(_){ }
+
+    // Respect current login state (set by showLoggedIn/showLoggedOut via body.dataset.dnLogged)
+    try{
+      const logged = document.body && document.body.dataset && document.body.dataset.dnLogged === '1';
+      if (btn) { if (logged) { btn.setAttribute('aria-disabled','false'); btn.style.cursor = 'pointer'; btn.style.opacity = ''; } else { btn.setAttribute('aria-disabled','true'); btn.style.cursor = 'not-allowed'; btn.style.opacity = '0.65'; } }
+      if (postBtn) { if (logged) { postBtn.setAttribute('aria-disabled','false'); postBtn.style.cursor = 'pointer'; postBtn.style.opacity = ''; } else { postBtn.setAttribute('aria-disabled','true'); postBtn.style.cursor = 'not-allowed'; postBtn.style.opacity = '0.65'; } }
+    }catch(_){ }
+  }
+
+  // helper to enable/disable UI action buttons
+  function setActionButtonsEnabled(enabled){
+    try{
+      const btns = [document.getElementById('messages-btn'), document.getElementById('new-post-btn')];
+      btns.forEach(b => {
+        if (!b) return;
+        if (enabled) { b.setAttribute('aria-disabled', 'false'); b.style.cursor = 'pointer'; b.style.opacity = ''; }
+        else { b.setAttribute('aria-disabled', 'true'); b.style.cursor = 'not-allowed'; b.style.opacity = '0.65'; }
+      });
+    }catch(_){ }
   }
 
   function showLoggedIn(username){
@@ -71,6 +151,10 @@
     }
     const linkRegister = document.getElementById('link-register'); if (linkRegister) linkRegister.style.display = 'none';
     const linkLogout = document.getElementById('link-logout'); if (linkLogout) linkLogout.style.display = 'none';
+    // mark body as logged and enable action buttons
+    try{ if (document.body && document.body.dataset) document.body.dataset.dnLogged = '1'; }catch(_){ }
+    try{ setActionButtonsEnabled(true); }catch(_){ }
+    try{ console.debug('[DualNet] showLoggedIn - enabled action buttons', { username }); }catch(_){ }
   }
 
   function showLoggedOut(){
@@ -88,6 +172,10 @@
     }
     const linkRegister = document.getElementById('link-register'); if (linkRegister) linkRegister.style.display = '';
     const linkLogout = document.getElementById('link-logout'); if (linkLogout) linkLogout.style.display = 'none';
+    // mark body as logged out and disable action buttons
+    try{ if (document.body && document.body.dataset) document.body.dataset.dnLogged = '0'; }catch(_){ }
+    try{ setActionButtonsEnabled(false); }catch(_){ }
+    try{ console.debug('[DualNet] showLoggedOut - disabled action buttons'); }catch(_){ }
   }
 
   // modal helpers
@@ -136,7 +224,8 @@
         try{ window.__dn_queue_open = false; if (document.body && document.body.dataset) delete document.body.dataset.dnOpenRequested; }catch(_){ }
       }
     }catch(_){ }
-    const postBtn = document.getElementById('new-post-btn'); if (postBtn) postBtn.addEventListener('click', ()=>{ openNewPost(); });
+    // note: click handlers for post/messages use the login-aware global handlers set in ensureMessagesButton
+    // (do not attach unconditional openNewPost listeners here)
     document.addEventListener('click', function(e){ const modal = document.getElementById('new-post-modal'); if (!modal) return; if (modal.getAttribute('aria-hidden') === 'true') return; const dialog = modal.querySelector('.new-post-modal'); if (!dialog) return; if (e.target === modal) closeNewPost(); });
     const close = document.getElementById('new-post-close'); if (close) close.addEventListener('click', closeNewPost);
     const cancel = document.getElementById('new-post-cancel'); if (cancel) cancel.addEventListener('click', closeNewPost);
