@@ -9,4 +9,3 @@
 #chat-messages .message.outgoing { background:#2b7cff;color:#fff; align-self:flex-end; }
 #chat-messages { display:flex;flex-direction:column;gap:6px; }
 @media (max-width:420px){ #messages-panel{ width:100%; } }
-
