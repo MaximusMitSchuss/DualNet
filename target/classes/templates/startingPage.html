@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Simple Social - Demo</title>
+    <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+<div id="navbar-container"></div>
+<div class="page-wrapper">
+<div id="app">
+    <header style="display:none;">
+        <h1>Simple Social</h1>
+        <div id="auth-area">
+            <!-- filled by JS -->
+        </div>
+    </header>
+
+    <main>
+        <!-- New post moved to a modal popup. The modal uses the same IDs (#post-content, #post-send)
+             so existing UI code still finds the controls. -->
+
+        <section id="posts" class="card">
+            <h2>Beiträge</h2>
+            <div id="posts-list">Lade Beiträge ...</div>
+        </section>
+
+    </main>
+</div>
+</div>
+
+<!-- Modal containers for login/register -->
+<div id="modal-login" class="modal" aria-hidden="true" role="dialog">
+  <div class="modal-content">
+    <h3>Login</h3>
+    <label for="login-username">Benutzername</label>
+    <input id="login-username" placeholder="Benutzername" />
+    <label for="login-password">Passwort</label>
+    <input id="login-password" type="password" placeholder="Passwort" />
+    <div class="modal-actions">
+      <button id="login-send">Einloggen</button>
+      <button class="modal-close">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<div id="modal-register" class="modal" aria-hidden="true" role="dialog">
+  <div class="modal-content">
+    <h3>Registrierung</h3>
+    <label for="reg-username">Benutzername</label>
+    <input id="reg-username" placeholder="Benutzername" />
+    <label for="reg-displayname">Anzeigename</label>
+    <input id="reg-displayname" placeholder="Anzeigename" />
+    <label for="reg-email">Email</label>
+    <input id="reg-email" placeholder="Email" />
+    <label for="reg-password">Passwort</label>
+    <input id="reg-password" type="password" placeholder="Passwort" />
+    <div class="modal-actions">
+      <button id="reg-send">Registrieren</button>
+      <button class="modal-close">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- New post modal -->
+<div id="modal-post" class="modal" aria-hidden="true" role="dialog">
+  <div class="modal-content">
+    <h3>Neuer Beitrag</h3>
+    <label for="post-content" class="visually-hidden">Beitragstext</label>
+    <textarea id="post-content" rows="6" placeholder="Was gibt's Neues?"></textarea>
+    <div class="modal-actions">
+      <button id="post-send">Posten</button>
+      <button class="modal-close">Abbrechen</button>
+    </div>
+  </div>
+</div>
+
+<!-- Use an external module script to bootstrap the client (ensures correct path /js/app.js) -->
+<script type="module" src="/js/app.js"></script>
+</body>
+</html>
