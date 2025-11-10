@@ -11,6 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import jakarta.servlet.http.HttpSession;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
@@ -38,9 +39,27 @@ public class MainController {
     @PostMapping("/api/register")
     @ResponseBody
     public ResponseEntity<?> apiRegister(@RequestBody Account account, HttpSession session) {
-        if (account.getUsername() == null || account.getUsername().isBlank()) {
-            return ResponseEntity.badRequest().body(Map.of("error", "username required"));
+        if (account == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "account_required"));
         }
+
+        // Explizite Pflichtfeldprüfung: username, displayName, email, password
+        List<String> missing = new ArrayList<>();
+        if (account.getUsername() == null || account.getUsername().isBlank()) missing.add("username");
+        if (account.getDisplayName() == null || account.getDisplayName().isBlank()) missing.add("displayName");
+        if (account.getEmail() == null || account.getEmail().isBlank()) missing.add("email");
+        if (account.getPassword() == null || account.getPassword().isBlank()) missing.add("password");
+
+        if (!missing.isEmpty()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "missing_fields", "fields", missing));
+        }
+
+        // Username-Einzigartigkeit prüfen
+        String username = account.getUsername();
+        if (authService.findByUsername(username).isPresent()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "username_taken"));
+        }
+
         authService.register(account);
         session.setAttribute("username", account.getUsername());
         return ResponseEntity.ok(Map.of("status", "ok", "username", account.getUsername()));

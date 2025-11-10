@@ -7,12 +7,14 @@
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
         <module name="DualNet" />
+        <module name="demoDualNet" />
       </profile>
     </annotationProcessing>
   </component>
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="DualNet" options="-parameters" />
+      <module name="demoDualNet" options="-parameters" />
     </option>
   </component>
 </project>
