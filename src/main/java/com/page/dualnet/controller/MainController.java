@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.stream.Collectors;
 
 @Controller
 public class MainController {
@@ -56,8 +57,16 @@ public class MainController {
 
         // Username-Einzigartigkeit prüfen
         String username = account.getUsername();
-        if (authService.findByUsername(username).isPresent()) {
+        if (authService.findByUsername(username).isPresent() || accountService.findByUsername(username).isPresent()) {
             return ResponseEntity.badRequest().body(Map.of("error", "username_taken"));
+        }
+
+        // persist to DB and in-memory registry so both search sources find the user
+        try {
+            accountService.save(account);
+        } catch (Exception e) {
+            // if DB save fails, still register in-memory but log
+            System.err.println("Warning: account save failed: " + e.getMessage());
         }
 
         authService.register(account);
@@ -156,4 +165,43 @@ public class MainController {
             return ResponseEntity.status(404).body(Map.of("error", "not_found"));
         }
     }
+
+    // API: search users for messaging / autocomplete
+    @GetMapping("/api/users")
+    @ResponseBody
+    public List<Map<String, String>> apiUsers(@RequestParam(name = "q", required = false) String q) {
+        String query = (q == null) ? null : q.trim().toLowerCase();
+        // Collect users from both in-memory AuthService and DB AccountService to ensure all registered users are found
+        List<Account> combined = new ArrayList<>();
+        // add in-memory users first
+        try {
+            var inMem = authService.listUsers();
+            if (inMem != null) combined.addAll(inMem);
+        } catch (Exception ignored) {}
+        // add DB users (use search when query provided to be efficient)
+        try {
+            List<Account> db;
+            if (query != null && !query.isBlank()) db = accountService.search(query);
+            else db = accountService.findAll();
+            if (db != null) combined.addAll(db);
+        } catch (Exception ignored) {}
+
+        // deduplicate by username (keep first occurrence)
+        var byUsername = combined.stream()
+                .filter(a -> a != null && a.getUsername() != null)
+                .collect(Collectors.toMap(Account::getUsername, a -> a, (a1, a2) -> a1));
+
+        final String fq = query;
+        return byUsername.values().stream()
+                .filter(a -> {
+                    if (fq == null || fq.isBlank()) return true;
+                    if (a.getUsername() != null && a.getUsername().toLowerCase().contains(fq)) return true;
+                    if (a.getDisplayName() != null && a.getDisplayName().toLowerCase().contains(fq)) return true;
+                    return false;
+                })
+                .limit(50)
+                .map(a -> Map.of("username", a.getUsername(), "displayName", a.getDisplayName() == null ? "" : a.getDisplayName()))
+                .collect(Collectors.toList());
+    }
+
 }

@@ -17,8 +17,8 @@ public class AccountService {
     }
 
     public List<Account> findAll() { return repo.findAll(); }
+    public List<Account> search(String q) { return repo.findByUsernameContainingIgnoreCaseOrDisplayNameContainingIgnoreCase(q, q); }
     public Optional<Account> findById(Long id) { return repo.findById(id); }
     public Optional<Account> findByUsername(String username) { return repo.findByUsername(username); }
     public Account save(Account a) { return repo.save(a); }
 }
-
