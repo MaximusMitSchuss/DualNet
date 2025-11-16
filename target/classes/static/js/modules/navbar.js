@@ -1,5 +1,6 @@
 import { qs } from './util.js';
 import * as auth from './auth.js';
+import * as messages from './messages.js';
 
 /**
  * Create a reusable navbar component and mount it into #navbar-container.
@@ -27,13 +28,20 @@ export function renderUserArea(username) {
   const area = qs('#nav-user-area');
   if (!area) return;
   if (username) {
-    area.innerHTML = `<span>Hallo, <strong>${username}</strong></span> <button id="nav-logout">Logout</button> <button id="nav-newpost" title="Neuer Beitrag">+</button>`;
+    area.innerHTML = `<span>Hallo, <strong>${username}</strong></span> <button id="nav-logout">Logout</button> <button id="nav-newpost" title="Neuer Beitrag">+</button> <button id="nav-messages" title="Nachrichten">✉</button>`;
     const btn = qs('#nav-logout');
     if (btn) btn.addEventListener('click', async () => {
       await auth.logout();
       window.location.reload();
     });
     // newpost button will be handled by app.js click listener (it listens on body)
+    const msgBtn = qs('#nav-messages');
+    if (msgBtn) {
+      msgBtn.addEventListener('click', async () => {
+        await messages.ensureMounted();
+        messages.openPanel();
+      });
+    }
   } else {
     area.innerHTML = `<button id="nav-login">Login</button> <button id="nav-register">Register</button>`;
     const l = qs('#nav-login');

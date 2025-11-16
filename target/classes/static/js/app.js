@@ -4,6 +4,7 @@ import * as ui from './modules/ui.js';
 import * as posts from './modules/posts.js';
 import * as auth from './modules/auth.js';
 import { mountNavbar, renderUserArea } from './modules/navbar.js';
+import * as messages from './modules/messages.js';
 
 /**
  * Initialize the client application: determine session, render UI and load posts.
@@ -21,6 +22,9 @@ async function init() {
 
   renderUserArea(username);
   ui.renderAuthArea(username);
+
+  // ensure messages panel is available (but hidden) so navbar can open it quickly
+  await messages.ensureMounted();
 
   async function refreshPosts() {
     const list = qs('#posts-list');
@@ -48,6 +52,11 @@ async function init() {
     if (t && t.id === 'nav-login') document.body.classList.add('show-login');
     if (t && t.id === 'nav-register') document.body.classList.add('show-register');
     if (t && t.id === 'nav-newpost') document.body.classList.add('show-post');
+  });
+
+  // also close messages panel when user logs out or when pressing escape
+  document.addEventListener('keydown', (ev) => {
+    if (ev.key === 'Escape') messages.closePanel();
   });
 
   await refreshPosts();
