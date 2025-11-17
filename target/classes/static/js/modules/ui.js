@@ -37,16 +37,27 @@ export function renderAuthArea(currentUser) {
  * Attach event listeners for the register/login forms and for posting.
  * This wires the DOM elements to the API via the auth/posts modules.
  */
+// Shared state for image upload
+let selectedImageFile = null;
+
 export function attachEventListeners(setCurrentUser, refreshPosts) {
   const regSend = qs('#reg-send');
   const loginSend = qs('#login-send');
   const postSend = qs('#post-send');
   const postTextarea = qs('#post-content');
+  
+  // Image upload elements
+  const imageFileInput = qs('#image-file-input');
+  const imageSelectBtn = qs('#image-select-btn');
+  const imageDropZone = qs('#image-drop-zone');
+  const imagePreview = qs('#image-preview');
+  const imagePreviewImg = qs('#image-preview-img');
+  const imageRemoveBtn = qs('#image-remove-btn');
 
   // helper to update post-send enabled state
   function updatePostButtonState() {
     if (!postSend || !postTextarea) return;
-    const ok = postTextarea.value && postTextarea.value.trim().length > 0;
+    const ok = (postTextarea.value && postTextarea.value.trim().length > 0) || selectedImageFile !== null;
     postSend.disabled = !ok;
   }
 
@@ -85,6 +96,70 @@ export function attachEventListeners(setCurrentUser, refreshPosts) {
     });
   }
 
+  // Helper: display image preview
+  function showImagePreview(file) {
+    selectedImageFile = file;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      if (imagePreviewImg) imagePreviewImg.src = e.target.result;
+      if (imageDropZone) imageDropZone.style.display = 'none';
+      if (imagePreview) imagePreview.style.display = 'block';
+      updatePostButtonState();
+    };
+    reader.readAsDataURL(file);
+  }
+  
+  // Helper: clear image
+  function clearImage() {
+    selectedImageFile = null;
+    if (imageFileInput) imageFileInput.value = '';
+    if (imagePreviewImg) imagePreviewImg.src = '';
+    if (imageDropZone) imageDropZone.style.display = 'block';
+    if (imagePreview) imagePreview.style.display = 'none';
+    updatePostButtonState();
+  }
+  
+  // Image select button click
+  if (imageSelectBtn && imageFileInput) {
+    imageSelectBtn.addEventListener('click', () => imageFileInput.click());
+  }
+  
+  // File input change
+  if (imageFileInput) {
+    imageFileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        showImagePreview(file);
+      }
+    });
+  }
+  
+  // Remove image button
+  if (imageRemoveBtn) {
+    imageRemoveBtn.addEventListener('click', clearImage);
+  }
+  
+  // Drag and drop handlers
+  if (imageDropZone) {
+    imageDropZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      imageDropZone.classList.add('drag-over');
+    });
+    
+    imageDropZone.addEventListener('dragleave', () => {
+      imageDropZone.classList.remove('drag-over');
+    });
+    
+    imageDropZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      imageDropZone.classList.remove('drag-over');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        showImagePreview(file);
+      }
+    });
+  }
+
   if (postTextarea) {
     postTextarea.addEventListener('input', updatePostButtonState);
     // set initial state
@@ -95,15 +170,19 @@ export function attachEventListeners(setCurrentUser, refreshPosts) {
     postSend.addEventListener('click', async () => {
       try {
         const content = qs('#post-content').value;
-        if (!content || content.trim().length === 0) return; // guard
-        await posts.sendPost(content);
+        if ((!content || content.trim().length === 0) && !selectedImageFile) return; // guard
+        await posts.sendPost(content, selectedImageFile);
         qs('#post-content').value = '';
+        clearImage();
         // close post modal
         document.body.classList.remove('show-post');
         await refreshPosts();
       } catch (err) {
-        alert('Fehler beim Posten: ' + (err.error || JSON.stringify(err)));
+        // Silently fail
       }
     });
   }
+  
+  // Make clearImage available externally
+  window._clearImageUpload = clearImage;
 }

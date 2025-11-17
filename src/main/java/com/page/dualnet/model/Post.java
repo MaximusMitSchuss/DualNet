@@ -17,6 +17,8 @@ public class Post {
     @Column(nullable = false, length = 2000)
     private String content;
 
+    private String imageUrl;
+
     private LocalDateTime createdAt = LocalDateTime.now();
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -41,6 +43,9 @@ public class Post {
 
     public Account getAuthor() { return author; }
     public void setAuthor(Account author) { this.author = author; }
+
+    public String getImageUrl() { return imageUrl; }
+    public void setImageUrl(String imageUrl) { this.imageUrl = imageUrl; }
 
     public Set<String> getLikes() { return likes; }
     public void setLikes(Set<String> likes) { this.likes = likes; }

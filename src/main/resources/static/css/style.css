@@ -133,3 +133,19 @@ input, textarea{box-sizing:border-box}
 .mp-to:empty{color:#6b7280}
 
 @media (max-width:520px){.mp-list{display:none}.messages-panel .mp-content{width:100%}}
+
+/* Image upload area */
+.image-upload-area{margin:12px 0}
+.image-drop-zone{border:2px dashed #d1d7e0;border-radius:8px;padding:24px;text-align:center;background:#fbfdff;transition:all .2s ease}
+.image-drop-zone.drag-over{border-color:#2563eb;background:#eff6ff}
+.image-drop-zone p{margin:0;color:#6b7280}
+.link-button{background:none;border:none;color:#2563eb;text-decoration:underline;cursor:pointer;padding:0;font:inherit}
+.link-button:hover{color:#1d4ed8}
+.image-preview{position:relative;border:1px solid #e6e9ef;border-radius:8px;padding:8px;background:#fff}
+.image-preview img{max-width:100%;height:auto;display:block;border-radius:6px}
+.image-remove-btn{position:absolute;top:12px;right:12px;width:28px;height:28px;border-radius:50%;background:rgba(0,0,0,0.7);color:#fff;border:none;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;transition:background .2s ease}
+.image-remove-btn:hover{background:rgba(0,0,0,0.9)}
+
+/* Post image display */
+.post-image{margin:10px 0;border-radius:8px;overflow:hidden}
+.post-image img{max-width:100%;height:auto;display:block}

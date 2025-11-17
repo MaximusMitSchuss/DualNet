@@ -13,12 +13,29 @@ export async function loadPosts() {
 /**
  * Send a new post to the server. Server requires an authenticated session.
  * @param {string} content
+ * @param {File|null} imageFile - optional image file to upload
  * @returns {Promise<object>} created post object
  */
-export async function sendPost(content) {
-  const res = await api('/api/posts', { method: 'POST', body: { content } });
-  if (!res.ok) throw await res.json();
-  return res.json();
+export async function sendPost(content, imageFile = null) {
+  if (imageFile) {
+    // Use FormData for multipart upload
+    const formData = new FormData();
+    formData.append('content', content || '');
+    formData.append('image', imageFile);
+    
+    const res = await fetch('/api/posts', {
+      method: 'POST',
+      credentials: 'include',
+      body: formData
+    });
+    if (!res.ok) throw await res.json();
+    return res.json();
+  } else {
+    // Original JSON API call
+    const res = await api('/api/posts', { method: 'POST', body: { content } });
+    if (!res.ok) throw await res.json();
+    return res.json();
+  }
 }
 
 /**
@@ -100,11 +117,12 @@ function renderPostHtml(p) {
   const comments = p.comments || [];
   const postOwner = (p.author && p.author.username) ? p.author.username : null;
   const canDeletePost = Boolean(window.currentUser && postOwner && window.currentUser === postOwner);
+  const imageHtml = p.imageUrl ? `<div class="post-image"><img src="${escapeHtml(p.imageUrl)}" alt="Post image" /></div>` : '';
 
   const tree = buildCommentTree(comments);
   const commentsHtml = renderCommentsTree(tree, window.currentUser, postOwner);
 
-  return `\n  <article class="post" data-id="${p.id}" data-author="${postOwner ? escapeHtml(postOwner) : ''}">\n    <header><strong>${escapeHtml(author)}</strong> <time>${escapeHtml(created)}</time></header>\n    <p>${escapeHtml(p.content)}</p>\n    <div class="post-actions">\n      <button class="btn-like ${likedByMe ? 'liked' : ''}" aria-pressed="${likedByMe ? 'true' : 'false'}">\n        <span class="heart">♥</span>\n        <span class="like-count">${likeCount}</span>\n      </button>\n      <button class="btn-comment" title="Kommentar"><span class="msg">💬</span></button>
+  return `\n  <article class="post" data-id="${p.id}" data-author="${postOwner ? escapeHtml(postOwner) : ''}">\n    <header><strong>${escapeHtml(author)}</strong> <time>${escapeHtml(created)}</time></header>\n    <p>${escapeHtml(p.content)}</p>\n    ${imageHtml}\n    <div class="post-actions">\n      <button class="btn-like ${likedByMe ? 'liked' : ''}" aria-pressed="${likedByMe ? 'true' : 'false'}">\n        <span class="heart">♥</span>\n        <span class="like-count">${likeCount}</span>\n      </button>\n      <button class="btn-comment" title="Kommentar"><span class="msg">💬</span></button>
       ${canDeletePost ? '<button class="btn-delete btn-delete-post" type="button">🗑️</button>' : ''}
     </div>\n    <div class="new-comment-placeholder"></div>\n    <div class="comments">${commentsHtml}</div>\n  </article>`;
 }

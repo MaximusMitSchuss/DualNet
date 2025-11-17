@@ -9,12 +9,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Controller
@@ -103,10 +110,10 @@ public class MainController {
         return authService.getPosts();
     }
 
-    // API: create post
-    @PostMapping("/api/posts")
+    // API: create post with JSON only
+    @PostMapping(value = "/api/posts", consumes = "application/json")
     @ResponseBody
-    public ResponseEntity<?> apiCreatePost(@RequestBody Map<String, String> payload, HttpSession session) {
+    public ResponseEntity<?> apiCreatePostJson(@RequestBody Map<String, String> payload, HttpSession session) {
         String content = payload.get("content");
         String username = (String) session.getAttribute("username");
         if (username == null) {
@@ -115,6 +122,66 @@ public class MainController {
         var author = authService.findByUsername(username).orElse(null);
         var post = authService.addPost(content, author);
         return ResponseEntity.ok(post);
+    }
+    
+    // API: create post with multipart (image + content)
+    @PostMapping(value = "/api/posts", consumes = "multipart/form-data")
+    @ResponseBody
+    public ResponseEntity<?> apiCreatePostMultipart(
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "image", required = false) MultipartFile image,
+            HttpSession session) {
+        
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "not_authenticated"));
+        }
+        
+        // Validate: either content or image must be present
+        if ((content == null || content.isBlank()) && (image == null || image.isEmpty())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "content_or_image_required"));
+        }
+        
+        var author = authService.findByUsername(username).orElse(null);
+        
+        // Handle image upload
+        String imageUrl = null;
+        if (image != null && !image.isEmpty()) {
+            try {
+                imageUrl = saveImage(image);
+            } catch (IOException e) {
+                return ResponseEntity.status(500).body(Map.of("error", "image_upload_failed"));
+            }
+        }
+        
+        var post = authService.addPost(content == null ? "" : content, author);
+        if (imageUrl != null) {
+            post.setImageUrl(imageUrl);
+        }
+        return ResponseEntity.ok(post);
+    }
+    
+    private String saveImage(MultipartFile file) throws IOException {
+        // Create uploads directory if it doesn't exist
+        Path uploadDir = Paths.get("uploads");
+        if (!Files.exists(uploadDir)) {
+            Files.createDirectories(uploadDir);
+        }
+        
+        // Generate unique filename
+        String originalFilename = file.getOriginalFilename();
+        String extension = "";
+        if (originalFilename != null && originalFilename.contains(".")) {
+            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
+        }
+        String filename = UUID.randomUUID().toString() + extension;
+        
+        // Save file
+        Path filePath = uploadDir.resolve(filename);
+        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        
+        // Return URL path
+        return "/uploads/" + filename;
     }
 
     // API: current user

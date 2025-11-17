@@ -44,6 +44,8 @@ async function init() {
     document.body.classList.remove('show-login');
     document.body.classList.remove('show-register');
     document.body.classList.remove('show-post');
+    // Clear image upload when closing post modal
+    if (window._clearImageUpload) window._clearImageUpload();
   }));
 
   // wire navbar buttons (open modals)
