@@ -166,6 +166,40 @@ public class MainController {
         }
     }
 
+    @DeleteMapping("/api/posts/{id}")
+    @ResponseBody
+    public ResponseEntity<?> apiDeletePost(@PathVariable long id, HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "not_authenticated"));
+        }
+        try {
+            authService.deletePost(id, username);
+            return ResponseEntity.ok(Map.of("status", "deleted"));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(Map.of("error", "not_found"));
+        } catch (SecurityException ex) {
+            return ResponseEntity.status(403).body(Map.of("error", "forbidden"));
+        }
+    }
+
+    @DeleteMapping("/api/posts/{postId}/comments/{commentId}")
+    @ResponseBody
+    public ResponseEntity<?> apiDeleteComment(@PathVariable long postId, @PathVariable long commentId, HttpSession session) {
+        String username = (String) session.getAttribute("username");
+        if (username == null) {
+            return ResponseEntity.status(401).body(Map.of("error", "not_authenticated"));
+        }
+        try {
+            authService.deleteComment(postId, commentId, username);
+            return ResponseEntity.ok(Map.of("status", "deleted"));
+        } catch (NoSuchElementException ex) {
+            return ResponseEntity.status(404).body(Map.of("error", "not_found"));
+        } catch (SecurityException ex) {
+            return ResponseEntity.status(403).body(Map.of("error", "forbidden"));
+        }
+    }
+
     // API: search users for messaging / autocomplete
     @GetMapping("/api/users")
     @ResponseBody

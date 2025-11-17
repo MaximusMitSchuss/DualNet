@@ -81,4 +81,66 @@ public class AuthService {
         p.addComment(c);
         return c;
     }
+
+    public void deletePost(long postId, String username) {
+        if (username == null || username.isBlank()) {
+            throw new SecurityException("not_authenticated");
+        }
+        Post p = postsById.get(postId);
+        if (p == null) {
+            throw new NoSuchElementException("post not found");
+        }
+        String owner = (p.getAuthor() != null) ? p.getAuthor().getUsername() : null;
+        if (owner != null && !owner.equals(username)) {
+            throw new SecurityException("forbidden");
+        }
+        posts.removeIf(existing -> Objects.equals(existing.getId(), postId));
+        postsById.remove(postId);
+    }
+
+    public void deleteComment(long postId, long commentId, String username) {
+        if (username == null || username.isBlank()) {
+            throw new SecurityException("not_authenticated");
+        }
+        Post p = postsById.get(postId);
+        if (p == null) {
+            throw new NoSuchElementException("post not found");
+        }
+        List<Comment> comments = p.getComments();
+        if (comments == null || comments.isEmpty()) {
+            throw new NoSuchElementException("comment not found");
+        }
+        Comment target = comments.stream()
+                .filter(c -> Objects.equals(c.getId(), commentId))
+                .findFirst()
+                .orElseThrow(() -> new NoSuchElementException("comment not found"));
+
+        String owner = (p.getAuthor() != null) ? p.getAuthor().getUsername() : null;
+        boolean allowed = username.equals(target.getAuthorUsername()) || (owner != null && owner.equals(username));
+        if (!allowed) {
+            throw new SecurityException("forbidden");
+        }
+
+        Set<Long> idsToRemove = collectCommentCascade(commentId, comments);
+        comments.removeIf(c -> idsToRemove.contains(c.getId()));
+    }
+
+    private Set<Long> collectCommentCascade(Long rootId, List<Comment> comments) {
+        Set<Long> ids = new HashSet<>();
+        if (rootId == null) {
+            return ids;
+        }
+        Deque<Long> stack = new ArrayDeque<>();
+        stack.push(rootId);
+        while (!stack.isEmpty()) {
+            Long current = stack.pop();
+            ids.add(current);
+            comments.stream()
+                    .filter(c -> Objects.equals(c.getParentId(), current))
+                    .map(Comment::getId)
+                    .filter(Objects::nonNull)
+                    .forEach(stack::push);
+        }
+        return ids;
+    }
 }

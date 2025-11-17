@@ -21,6 +21,10 @@ textarea{resize:vertical}
 button{padding:8px 12px;border:0;background:#2563eb;color:#fff;border-radius:8px;cursor:pointer;font-weight:600}
 button.secondary{background:transparent;border:1px solid rgba(37,99,235,0.12);color:#2563eb}
 button:disabled{opacity:0.6;cursor:not-allowed}
+button.btn-delete{background:#fff;color:#111827;border:1px solid rgba(15,23,42,0.15);padding:6px 12px}
+button.btn-delete:hover{background:#f4f6fb;border-color:rgba(15,23,42,0.3)}
+.btn-delete-post{margin-left:auto}
+.comment-actions .btn-delete{margin-left:6px;font-size:0.78rem;padding:5px 10px}
 
 /* Navbar: sticky, simple and centered content inside page width */
 .navbar{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:#2563eb;color:#fff;position:sticky;top:0;z-index:60;box-shadow:0 2px 8px rgba(37,99,235,0.08)}
