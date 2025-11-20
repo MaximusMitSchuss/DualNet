@@ -69,6 +69,19 @@
     <h3>Neuer Beitrag</h3>
     <label for="post-content" class="visually-hidden">Beitragstext</label>
     <textarea id="post-content" rows="6" placeholder="Was gibt's Neues?"></textarea>
+    
+    <!-- Image upload area -->
+    <div id="image-upload-area" class="image-upload-area">
+      <input type="file" id="image-file-input" accept="image/*" style="display: none;" />
+      <div id="image-drop-zone" class="image-drop-zone">
+        <p>📷 Bild hierher ziehen oder <button type="button" id="image-select-btn" class="link-button">auswählen</button></p>
+      </div>
+      <div id="image-preview" class="image-preview" style="display: none;">
+        <img id="image-preview-img" alt="Vorschau" />
+        <button type="button" id="image-remove-btn" class="image-remove-btn" title="Bild entfernen">✕</button>
+      </div>
+    </div>
+    
     <div class="modal-actions">
       <button id="post-send">Posten</button>
       <button class="modal-close">Abbrechen</button>
