@@ -13,7 +13,7 @@ export function mountNavbar(links = []) {
   container.innerHTML = `
     <nav class="navbar">
       <div class="nav-left">
-        <a class="brand" href="/">SimpleSocial</a>
+        <a class="brand" href="/">DualNet</a>
         ${links.map(l => `<a class="nav-link" href="${l.href}">${l.label}</a>`).join('')}
       </div>
       <div class="nav-right" id="nav-user-area">...</div>
