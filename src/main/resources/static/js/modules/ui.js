@@ -96,15 +96,56 @@ export function attachEventListeners(setCurrentUser, refreshPosts) {
     });
   }
 
-  // Helper: display image preview
+  // Helper: display image preview with 4:3 crop
   function showImagePreview(file) {
-    selectedImageFile = file;
     const reader = new FileReader();
     reader.onload = (e) => {
-      if (imagePreviewImg) imagePreviewImg.src = e.target.result;
-      if (imageDropZone) imageDropZone.style.display = 'none';
-      if (imagePreview) imagePreview.style.display = 'block';
-      updatePostButtonState();
+      const img = new Image();
+      img.onload = () => {
+        // Create canvas for cropping
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Calculate dimensions for 4:3 aspect ratio
+        const targetRatio = 4 / 3;
+        const currentRatio = img.width / img.height;
+        
+        let cropX = 0;
+        let cropY = 0;
+        let cropWidth = img.width;
+        let cropHeight = img.height;
+        
+        if (currentRatio > targetRatio) {
+          // Image is wider than 4:3, crop width
+          cropWidth = img.height * targetRatio;
+          cropX = (img.width - cropWidth) / 2;
+        } else if (currentRatio < targetRatio) {
+          // Image is taller than 4:3, crop height
+          cropHeight = img.width / targetRatio;
+          cropY = (img.height - cropHeight) / 2;
+        }
+        
+        // Set canvas to 4:3 ratio (max width 800px)
+        const maxWidth = 800;
+        const maxHeight = 600;
+        canvas.width = maxWidth;
+        canvas.height = maxHeight;
+        
+        // Draw cropped and resized image
+        ctx.drawImage(img, cropX, cropY, cropWidth, cropHeight, 0, 0, maxWidth, maxHeight);
+        
+        // Convert canvas to blob and create new file
+        canvas.toBlob((blob) => {
+          selectedImageFile = new File([blob], file.name, { type: 'image/jpeg' });
+          
+          // Display preview
+          if (imagePreviewImg) imagePreviewImg.src = canvas.toDataURL('image/jpeg');
+          if (imageDropZone) imageDropZone.style.display = 'none';
+          if (imagePreview) imagePreview.style.display = 'block';
+          updatePostButtonState();
+        }, 'image/jpeg', 0.9);
+      };
+      img.src = e.target.result;
     };
     reader.readAsDataURL(file);
   }
