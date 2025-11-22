@@ -12,6 +12,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.http.HttpSession;
+import javax.imageio.ImageIO;
+import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -168,17 +171,54 @@ public class MainController {
             Files.createDirectories(uploadDir);
         }
         
+        // Read the original image
+        BufferedImage originalImage = ImageIO.read(file.getInputStream());
+        if (originalImage == null) {
+            throw new IOException("Unable to read image file");
+        }
+        
+        // Calculate dimensions for 4:3 aspect ratio
+        int originalWidth = originalImage.getWidth();
+        int originalHeight = originalImage.getHeight();
+        
+        // Target aspect ratio 4:3
+        double targetRatio = 4.0 / 3.0;
+        double currentRatio = (double) originalWidth / originalHeight;
+        
+        int cropX = 0;
+        int cropY = 0;
+        int cropWidth = originalWidth;
+        int cropHeight = originalHeight;
+        
+        if (currentRatio > targetRatio) {
+            // Image is wider than 4:3, crop width
+            cropWidth = (int) (originalHeight * targetRatio);
+            cropX = (originalWidth - cropWidth) / 2;
+        } else if (currentRatio < targetRatio) {
+            // Image is taller than 4:3, crop height
+            cropHeight = (int) (originalWidth / targetRatio);
+            cropY = (originalHeight - cropHeight) / 2;
+        }
+        
+        // Crop the image to 4:3 ratio
+        BufferedImage croppedImage = originalImage.getSubimage(cropX, cropY, cropWidth, cropHeight);
+        
+        // Optionally resize to a standard size (e.g., 800x600)
+        int targetWidth = 800;
+        int targetHeight = 600;
+        BufferedImage resizedImage = new BufferedImage(targetWidth, targetHeight, BufferedImage.TYPE_INT_RGB);
+        Graphics2D g = resizedImage.createGraphics();
+        g.drawImage(croppedImage, 0, 0, targetWidth, targetHeight, null);
+        g.dispose();
+        
         // Generate unique filename
         String originalFilename = file.getOriginalFilename();
-        String extension = "";
-        if (originalFilename != null && originalFilename.contains(".")) {
-            extension = originalFilename.substring(originalFilename.lastIndexOf("."));
-        }
-        String filename = UUID.randomUUID().toString() + extension;
+        String extension = "jpg"; // Always save as JPG for consistency
+        String filename = UUID.randomUUID().toString() + "." + extension;
         
-        // Save file
+        // Save the processed image
         Path filePath = uploadDir.resolve(filename);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        ImageIO.write(resizedImage, "jpg", filePath.toFile());
         
         // Return URL path
         return "/uploads/" + filename;
