@@ -42,7 +42,7 @@ Schnellstart
 
    ./mvnw spring-boot:run
 
-2. Anwendung im Browser öffnen: http://localhost:8080/ (oder direkt `/Homepage.html`, `/login.html`, `/registration.html`)
+2. Anwendung im Browser öffnen: http://localhost:8085/ (oder direkt `/Homepage.html`, `/login.html`, `/registration.html`)
 
 Weiteres
 - Diese README ist bewusst kompakt gehalten. Für tiefergehende Dokumentation (z. B. API, Sicherheitsverbesserungen, Tests) können weitere Sektionen ergänzt werden.
