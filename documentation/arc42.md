@@ -54,7 +54,7 @@ Die Anwendung ist in fachliche Module unterteilt (z.B. User Management, Feed/Bei
 * **Services:** Enthalten die Geschäftslogik (Prüfung von Duplikaten, Hashing).
 * **Repositories:** Kapseln den Zugriff auf `data/accounts.txt`.
 
-![UML-Klassendiagramm](documentation/UML-Klassen-Diagramm.png)
+![UML-Klassendiagramm](UML-Klassen-Diagramm.png)
 
 # 6. Laufzeitsicht
 
@@ -65,8 +65,8 @@ Ablauf einer Registrierung/Anmeldung:
 3. Service prüft Daten über Repository.
 4. Bei Erfolg wird eine Session erstellt und das Profil geladen.
 
-![Sequenzdiagramm](../../IdeaProjects/DualNet/documentation/Sequenzdiagramm.png)
-![Aktivitätsdiagramm Login/Registrierung](../../IdeaProjects/DualNet/documentation/Login-Anwendungsdiagramm.png)
+![Sequenzdiagramm](Sequenzdiagramm.png)
+![Aktivitätsdiagramm Login/Registrierung](Login-Anwendungsdiagramm.png)
 
 # 7. Verteilungssicht
 
@@ -96,7 +96,7 @@ Die folgenden Architecture Decision Records (ADRs) aus dem letzten Semester sind
 # 10. Qualitätsanforderungen
 
 ## 10.1 Qualitätsbaum (Utility Tree)
-![Utility Tree](../../IdeaProjects/DualNet/documentation/UtilityTree.png)
+![Utility Tree](UtilityTree.png)
 
 ## 10.2 Qualitätsszenarien
 * **Performance:** Das Login-Szenario wird unter Normalbedingungen in weniger als einer Sekunde abgeschlossen (Q4).
