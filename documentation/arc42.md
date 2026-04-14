@@ -54,7 +54,7 @@ Die Anwendung ist in fachliche Module unterteilt (z.B. User Management, Feed/Bei
 * **Services:** Enthalten die Geschäftslogik (Prüfung von Duplikaten, Hashing).
 * **Repositories:** Kapseln den Zugriff auf `data/accounts.txt`.
 
-![UML-Klassendiagramm](../../IdeaProjects/DualNet/documentation/UML-Klassen-Diagramm.png)
+![UML-Klassendiagramm](documentation/UML-Klassen-Diagramm.png)
 
 # 6. Laufzeitsicht
 
